@@ -1,0 +1,1209 @@
+<title>Riverbend Signal — Community Decision Intelligence</title>
+<div id="app" data-view="overview"></div>
+
+<style>
+/* =============================================================================
+   Riverbend Signal — Community Decision Intelligence Platform
+   Palette: cool blue-biased neutrals + deep teal accent. Chart series use the
+   dataviz reference categorical slots 1–5 (validated). Status colors reserved.
+   ========================================================================== */
+/* ---- DARK-FIRST design system (sleek glass + gradient) ---- */
+:root{
+  color-scheme:dark;
+  --bg:#05070b; --plane:#080b11; --surface:#0f1620; --surface-2:#161f2b;
+  --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.16);
+  --text:#f2f7fc; --text-2:#aebfd1; --muted:#8091a5;
+  --accent:#22d3ee; --accent-2:#7c3aed; --accent-ink:#04121a; --accent-weak:rgba(34,211,238,.13);
+  --grad:linear-gradient(135deg,#22d3ee 0%,#6366f1 55%,#a855f7 100%);
+  --grad-soft:linear-gradient(135deg,rgba(34,211,238,.16),rgba(124,58,237,.16));
+  --glow:0 0 24px -4px rgba(34,211,238,.45);
+  --glass:rgba(16,23,33,.62); --glass-2:rgba(22,31,43,.55); --glass-border:rgba(255,255,255,.09);
+  --good:#22c55e; --warning:#fab219; --serious:#f97316; --critical:#f43f5e;
+  --good-weak:rgba(34,197,94,.15); --warning-weak:rgba(250,178,25,.15); --serious-weak:rgba(249,115,22,.15); --critical-weak:rgba(244,63,94,.15);
+  --c-air:#3987e5; --c-climate:#199e70; --c-energy:#c98500; --c-water:#008300; --c-wellness:#9085e9;
+  --chart-grid:rgba(255,255,255,.06); --chart-axis:rgba(255,255,255,.16); --chart-ink:#eaf1f8;
+  --chart-surface:#0f1620;
+  --mesh-1:#0891b2; --mesh-2:#6d28d9; --mesh-3:#0f766e; --mesh-a:.55;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 34px -16px rgba(0,0,0,.8);
+  --shadow-lg:0 24px 60px -20px rgba(0,0,0,.85);
+  --radius:16px; --radius-sm:10px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+}
+:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#eef2f7; --plane:#f5f8fc; --surface:#ffffff; --surface-2:#eef3f9;
+  --border:rgba(16,32,50,.10); --border-strong:rgba(16,32,50,.20);
+  --text:#0c1622; --text-2:#4a5a6d; --muted:#8091a3;
+  --accent:#0891b2; --accent-2:#7c3aed; --accent-ink:#ffffff; --accent-weak:rgba(8,145,178,.12);
+  --grad:linear-gradient(135deg,#06b6d4 0%,#6366f1 55%,#a855f7 100%);
+  --grad-soft:linear-gradient(135deg,rgba(6,182,212,.12),rgba(124,58,237,.12));
+  --glow:0 0 24px -6px rgba(8,145,178,.4);
+  --glass:rgba(255,255,255,.7); --glass-2:rgba(255,255,255,.6); --glass-border:rgba(16,32,50,.08);
+  --good:#059669; --warning:#c98500; --serious:#ea580c; --critical:#e11d48;
+  --good-weak:rgba(5,150,105,.12); --warning-weak:rgba(201,133,0,.14); --serious-weak:rgba(234,88,12,.12); --critical-weak:rgba(225,29,72,.1);
+  --c-air:#2a78d6; --c-climate:#178a63; --c-energy:#b07400; --c-water:#0f7d33; --c-wellness:#6d28d9;
+  --chart-grid:rgba(16,32,50,.07); --chart-axis:rgba(16,32,50,.2); --chart-ink:#0c1622;
+  --chart-surface:#ffffff;
+  --mesh-1:#67e8f9; --mesh-2:#c4b5fd; --mesh-3:#6ee7b7; --mesh-a:.5;
+  --shadow:0 1px 2px rgba(16,32,50,.05), 0 10px 30px -14px rgba(16,32,50,.22);
+  --shadow-lg:0 24px 60px -22px rgba(16,32,50,.3);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+/* animated gradient-mesh backdrop */
+body::before{content:"";position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(42vw 42vw at 12% 8%, var(--mesh-1) 0%, transparent 60%),
+    radial-gradient(46vw 46vw at 88% 12%, var(--mesh-2) 0%, transparent 62%),
+    radial-gradient(50vw 50vw at 70% 96%, var(--mesh-3) 0%, transparent 60%);
+  opacity:var(--mesh-a);filter:blur(52px) saturate(120%);
+  animation:mesh 26s ease-in-out infinite alternate;}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 0%, transparent 40%, var(--bg) 92%);}
+@keyframes mesh{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(2%,-2%,0) scale(1.08)}
+  100%{transform:translate3d(-2%,2%,0) scale(1.04)}}
+#app{min-height:100vh;position:relative}
+h1,h2,h3,h4{margin:0;font-weight:670;letter-spacing:-.015em;text-wrap:balance;}
+a{color:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+/* custom scrollbars */
+*::-webkit-scrollbar{width:11px;height:11px}
+*::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--muted);background-clip:content-box}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* ---- shell layout ---- */
+.shell{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;background:var(--surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  padding:18px 14px;gap:6px;z-index:40;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 14px}
+.brand .mark{width:34px;height:34px;border-radius:9px;flex:none;
+  background:linear-gradient(150deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:var(--accent-ink);box-shadow:var(--shadow)}
+.brand .mark svg{width:19px;height:19px}
+.brand b{font-size:15px;letter-spacing:-.02em;display:block;line-height:1.1}
+.brand span{font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+.loc-picker{position:relative;margin:2px 4px 12px}
+.loc-btn{width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);text-align:left;transition:border-color .15s,background .15s}
+.loc-btn:hover{border-color:var(--border-strong)}
+.loc-btn .flag{font-size:17px;line-height:1}
+.loc-btn .lz{flex:1;min-width:0}
+.loc-btn .lz b{font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc-btn .lz small{font-size:11px;color:var(--muted)}
+.loc-btn .chev{color:var(--muted);transition:transform .18s}
+.loc-picker.open .chev{transform:rotate(180deg)}
+.loc-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);
+  padding:6px;z-index:60;display:none}
+.loc-picker.open .loc-menu{display:block;animation:pop .16s ease}
+.loc-menu button{width:100%;display:flex;align-items:center;gap:9px;padding:8px 9px;
+  background:none;border:0;border-radius:8px;color:var(--text);text-align:left;font-size:13.5px}
+.loc-menu button:hover{background:var(--surface-2)}
+.loc-menu button[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
+.loc-menu .mini{font-size:11px;color:var(--muted);margin-left:auto}
+
+.nav-label{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);padding:12px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;
+  color:var(--text-2);border:0;background:none;width:100%;text-align:left;font-size:14px;
+  font-weight:520;transition:background .14s,color .14s;position:relative}
+.nav-item:hover{background:var(--surface-2);color:var(--text)}
+.nav-item.active{background:var(--accent-weak);color:var(--accent);font-weight:620}
+.nav-item .ic{width:19px;height:19px;flex:none;display:grid;place-items:center}
+.nav-item .ic svg{width:18px;height:18px}
+.nav-item .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.nav-item .badge{margin-left:auto;font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px;
+  background:var(--critical);color:#fff;min-width:20px;text-align:center}
+.nav-item .badge.zero{display:none}
+.sidebar .spacer{flex:1}
+.side-foot{border-top:1px solid var(--border);padding:12px 8px 4px;margin-top:8px;
+  font-size:11px;color:var(--muted);line-height:1.5}
+.side-foot a{color:var(--accent);text-decoration:none}
+
+.theme-toggle{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);
+  font-size:13px;font-weight:550;margin-bottom:10px}
+.theme-toggle:hover{border-color:var(--border-strong);color:var(--text)}
+.theme-toggle svg{width:16px;height:16px}
+
+/* ---- main ---- */
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;background:color-mix(in srgb,var(--plane) 86%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:30;
+  padding:15px 30px;display:flex;align-items:center;gap:16px}
+.topbar .menu-btn{display:none;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;padding:7px;color:var(--text)}
+.topbar h1{font-size:19px}
+.topbar .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.topbar .asof{margin-left:auto;text-align:right;font-size:12px;color:var(--muted)}
+.topbar .asof b{color:var(--text-2);font-weight:600}
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);
+  margin-right:5px;box-shadow:0 0 0 0 rgba(12,163,12,.5);animation:pulse 2.4s infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+.view{padding:26px 30px 60px;max-width:1240px;width:100%;animation:fade .3s ease}
+.view-intro{margin-bottom:20px}
+.view-intro h2{font-size:23px}
+.view-intro p{color:var(--text-2);margin:5px 0 0;max-width:70ch;font-size:14px}
+
+/* ---- cards / grid ---- */
+.grid{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow)}
+.card-pad{padding:18px}
+.card-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--border)}
+.card-h h3{font-size:15px}
+.card-h .sub{font-size:12px;color:var(--muted)}
+.card-h .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* ---- stat tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:15px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 17px;box-shadow:var(--shadow);cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .16s,box-shadow .16s,border-color .16s;text-align:left;width:100%;
+  color:var(--text);font-size:15px;line-height:1.5}
+.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--border-strong)}
+.tile .rail{position:absolute;left:0;top:0;bottom:0;width:3px}
+.tile .th{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);font-weight:620}
+.tile .th .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+.tile .val{font-size:31px;font-weight:700;letter-spacing:-.02em;margin-top:9px;display:flex;
+  align-items:baseline;gap:6px;color:var(--text)}
+.tile .val .u{font-size:13px;color:var(--muted);font-weight:600}
+.tile .meta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;flex-wrap:wrap}
+.delta{display:inline-flex;align-items:center;gap:4px;font-weight:680;font-variant-numeric:tabular-nums;
+  font-size:11.5px;padding:2.5px 9px;border-radius:20px}
+.delta.pos{color:var(--good);background:var(--good-weak)}
+.delta.neg{color:var(--critical);background:var(--critical-weak)}
+.delta.neu{color:var(--text-2);background:var(--surface-2)}
+.tile .spark{margin-top:12px;height:42px}
+.tile .status-pill{margin-left:auto}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:680;
+  padding:2px 9px;border-radius:20px;letter-spacing:.01em;white-space:nowrap}
+.pill svg{width:12px;height:12px}
+.pill.good{background:var(--good-weak);color:var(--good)}
+.pill.warning{background:var(--warning-weak);color:var(--warning)}
+.pill.serious{background:var(--serious-weak);color:var(--serious)}
+.pill.critical{background:var(--critical-weak);color:var(--critical)}
+.pill.info{background:var(--accent-weak);color:var(--accent)}
+.pill.ghost{background:var(--surface-2);color:var(--text-2)}
+
+/* ---- charts ---- */
+.chart-wrap{position:relative;width:100%}
+.chart-wrap svg{display:block;width:100%;overflow:visible}
+.chart-tt{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:9px;box-shadow:var(--shadow-lg);padding:8px 11px;font-size:12px;z-index:20;
+  opacity:0;transition:opacity .12s;min-width:120px}
+.chart-tt .d{color:var(--muted);font-size:11px;margin-bottom:3px}
+.chart-tt .r{display:flex;align-items:center;gap:6px;font-weight:600}
+.chart-tt .r .sw{width:9px;height:9px;border-radius:2px;flex:none}
+.chart-tt .r .v{margin-left:auto;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--text-2);padding:4px 2px 0}
+.legend .li{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:11px;height:3px;border-radius:2px}
+.legend .sw.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px);height:2px;width:14px}
+
+/* ---- segmented / controls ---- */
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.seg button{border:0;background:none;color:var(--text-2);font-size:12.5px;font-weight:600;
+  padding:5px 11px;border-radius:6px;transition:background .14s,color .14s}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.selctl{background:var(--surface-2);border:1px solid var(--border);border-radius:9px;color:var(--text);
+  padding:7px 11px;font-size:13px;font-weight:550;font-family:inherit}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2);
+  background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:6px 11px;font-weight:600}
+.toggle input{accent-color:var(--accent)}
+
+/* ---- anomaly / rec list ---- */
+.feed{display:flex;flex-direction:column}
+.arow{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s}
+.arow:last-child{border-bottom:0}
+.arow:hover{background:var(--surface-2)}
+.arow .sev{width:4px;align-self:stretch;border-radius:3px;flex:none;min-height:38px}
+.arow .icn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;
+  background:var(--surface-2);color:var(--text-2)}
+.arow .body{flex:1;min-width:0}
+.arow .body b{font-size:14px}
+.arow .body .m{font-size:12.5px;color:var(--text-2);margin-top:1px}
+.arow .rt{text-align:right;flex:none}
+.arow .rt .z{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.arow .rt .dt{font-size:11.5px;color:var(--muted)}
+.arow .dir{font-size:15px}
+
+.recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.rec{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:17px;display:flex;flex-direction:column;gap:10px;
+  border-left:4px solid var(--muted)}
+.rec.critical{border-left-color:var(--critical)} .rec.serious{border-left-color:var(--serious)}
+.rec.info{border-left-color:var(--accent)}
+.rec .rh{display:flex;align-items:center;gap:8px}
+.rec h4{font-size:15px;line-height:1.3}
+.rec .act{font-size:13.5px;color:var(--text-2)}
+.rec .why{font-size:12.5px;color:var(--muted);border-left:2px solid var(--border);padding-left:9px}
+.rec .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;background:var(--surface-2);
+  color:var(--text-2);border:1px solid var(--border)}
+.rec .ev{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* ---- ask ---- */
+.ask-wrap{display:flex;flex-direction:column;gap:0;height:calc(100vh - 128px);min-height:460px}
+.ask-scroll{flex:1;overflow-y:auto;padding:8px 2px 18px;display:flex;flex-direction:column;gap:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+.chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 13px;
+  font-size:12.5px;color:var(--text-2);font-weight:550;transition:border-color .14s,color .14s,background .14s}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-weak)}
+.msg{display:flex;gap:11px;max-width:820px}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg .av{width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;font-size:13px;font-weight:700}
+.msg.user .av{background:var(--accent);color:var(--accent-ink)}
+.msg.bot .av{background:linear-gradient(150deg,var(--accent),var(--accent-2));color:var(--accent-ink)}
+.bubble{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px 15px;
+  box-shadow:var(--shadow);font-size:14px}
+.msg.user .bubble{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.bubble .eng{font-size:10.5px;color:var(--muted);margin-top:9px;display:flex;align-items:center;gap:6px;
+  text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.bubble .eng .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.bubble .qchart{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.ask-bar{display:flex;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.ask-bar input{flex:1;background:var(--surface);border:1px solid var(--border-strong);border-radius:11px;
+  padding:12px 15px;font-size:14px;color:var(--text);font-family:inherit}
+.ask-bar input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.ask-bar button{background:var(--accent);color:var(--accent-ink);border:0;border-radius:11px;
+  padding:0 20px;font-weight:650;font-size:14px;display:flex;align-items:center;gap:7px}
+.ask-bar button:hover{background:var(--accent-2)}
+.typing{display:inline-flex;gap:3px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+
+.banner{display:flex;gap:11px;align-items:flex-start;background:var(--accent-weak);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:11px;padding:12px 15px;
+  font-size:12.5px;color:var(--text-2);margin-bottom:18px}
+.banner svg{width:17px;height:17px;color:var(--accent);flex:none;margin-top:1px}
+.banner b{color:var(--text)}
+
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.hscore{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.gauge{position:relative;width:118px;height:118px;flex:none}
+.gauge .num{position:absolute;inset:0;display:grid;place-items:center;flex-direction:column;text-align:center}
+.gauge .num b{font-size:30px;font-weight:720;line-height:1}
+.gauge .num small{font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.07em;font-weight:650}
+.hscore .hx{flex:1;min-width:240px}
+.hscore .hx h3{font-size:16px;margin-bottom:4px}
+.hscore .hx p{color:var(--text-2);font-size:13.5px;margin:0}
+
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(12,163,12,.5)}70%{box-shadow:0 0 0 7px rgba(12,163,12,0)}100%{box-shadow:0 0 0 0 rgba(12,163,12,0)}}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---- responsive ---- */
+/* ============================================================
+   MODERN LAYER — glass surfaces, gradient/glow accents, motion
+   (later rules override the base component styles above)
+   ============================================================ */
+.sidebar{background:var(--glass);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);border-right:1px solid var(--glass-border);}
+.topbar{background:color-mix(in srgb,var(--glass) 80%,transparent);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--glass-border);transition:box-shadow .3s,background .3s;}
+.topbar.scrolled{box-shadow:0 14px 40px -26px rgba(0,0,0,.9)}
+.card{background:var(--glass);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);border:1px solid var(--glass-border);}
+.card-h{border-bottom:1px solid var(--glass-border)}
+.rec{background:var(--glass);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px);border:1px solid var(--glass-border);}
+.tile{background:var(--glass);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);overflow:hidden;}
+.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--grad-soft);opacity:0;transition:opacity .28s;pointer-events:none;z-index:0}
+.tile>*{position:relative;z-index:1}
+.tile:hover::after{opacity:1}
+.tile:hover{border-color:color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:var(--shadow-lg),0 0 30px -8px rgba(34,211,238,.4)}
+.tile .rail{background:var(--grad)!important;box-shadow:2px 0 12px -2px var(--accent)}
+.brand .mark{background:var(--grad);box-shadow:var(--glow)}
+.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-item{transition:background .18s,color .18s,transform .12s}
+.nav-item:hover{transform:translateX(2px)}
+.nav-item.active{background:var(--grad-soft);color:var(--text);box-shadow:inset 0 0 0 1px var(--glass-border)}
+.nav-item.active::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--grad);box-shadow:var(--glow)}
+.nav-item.active .ic{color:var(--accent)}
+.loc-btn,.selctl,.toggle,.seg,.chip,.ask-bar input,.theme-toggle,.loc-menu{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.loc-menu{background:var(--glass);border-color:var(--glass-border)}
+.ask-bar button{background:var(--grad);color:#fff;box-shadow:var(--glow);transition:transform .15s,box-shadow .2s}
+.ask-bar button:hover{background:var(--grad);transform:translateY(-1px);box-shadow:var(--glow),0 8px 24px -8px rgba(124,58,237,.6)}
+.chip{transition:border-color .16s,color .16s,background .16s,transform .12s}
+.chip:hover{border-color:transparent;background:var(--grad-soft);color:var(--text);transform:translateY(-1px)}
+.bubble{background:var(--glass-2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-border)}
+.msg.user .bubble{background:var(--grad);color:#fff;border:0;box-shadow:var(--glow)}
+.msg.bot .av{background:var(--grad);box-shadow:var(--glow)}
+.pill{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.gauge{filter:drop-shadow(0 0 12px rgba(34,211,238,.28))}
+.gauge .num b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.banner{background:var(--grad-soft);border-color:var(--glass-border);backdrop-filter:blur(10px)}
+.view-intro h2{font-size:25px}
+.hscore .hx h3{background:linear-gradient(90deg,var(--text),var(--text-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.chart-wrap svg{border-radius:8px}
+.chart-tt{background:var(--glass);backdrop-filter:blur(14px);border-color:var(--border-strong)}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);z-index:120;
+  background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  padding:11px 17px;border-radius:13px;font-size:13px;color:var(--text);box-shadow:var(--shadow-lg);
+  opacity:0;transition:opacity .3s,transform .3s;display:flex;gap:9px;align-items:center;
+  max-width:min(92vw,560px)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* scroll-reveal */
+.reveal{opacity:0;transform:translateY(22px) scale(.992);will-change:opacity,transform}
+.reveal.in{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+
+/* view transitions */
+::view-transition-old(root){animation:vtOut .26s ease both}
+::view-transition-new(root){animation:vtIn .40s cubic-bezier(.2,.7,.2,1) both}
+@keyframes vtIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes vtOut{to{opacity:0;transform:translateY(-8px)}}
+
+@media (prefers-reduced-motion:reduce){
+  body::before{animation:none}
+  .reveal{opacity:1;transform:none}
+}
+
+.scrim{display:none}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:270px;transform:translateX(-100%);
+    transition:transform .22s ease;box-shadow:var(--shadow-lg)}
+  .shell.nav-open .sidebar{transform:none}
+  .shell.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35}
+  .topbar .menu-btn{display:grid;place-items:center}
+  .view{padding:20px 16px 50px}
+  .topbar{padding:13px 16px}
+  .ask-wrap{height:auto}
+}
+</style>
+
+<script>
+let DB = /*__SNAPSHOT__*/ null;
+const LIVE = /*__LIVE__*/ false;   // true in the backend-served frontend
+const API = "";                     // same-origin API base when LIVE
+</script>
+<script>
+"use strict";
+/* ============================ helpers & state ============================ */
+const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const DOMAIN_ORDER=["air","climate","energy","water","wellness"];
+const DOMAIN_COLOR={air:"--c-air",climate:"--c-climate",energy:"--c-energy",water:"--c-water",wellness:"--c-wellness"};
+const cvar=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const FLAG={IN:"🇮🇳",US:"🇺🇸",GB:"🇬🇧"};
+const state={
+  city: (DB&&DB.cities[0])?DB.cities[0].key:null,
+  view:"overview",
+  domainMetric:{}, range:{}, showFc:{},
+  anomFilter:{domain:"all",sev:"all"},
+  fc:{domain:"climate",metric:"temp_mean"},
+  ask:[]
+};
+const D=()=>DB.data[state.city];
+const flag=cc=>FLAG[cc]||"📍";
+function fmt(v,dec){ if(v==null)return "–"; if(dec!=null)return v.toFixed(dec);
+  return Math.abs(v)>=100?Math.round(v).toString():(Math.round(v*10)/10).toString(); }
+const ICONS={
+ air:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 10h11a3 3 0 1 0-3-3M2 15h15a3 3 0 1 1-3 3"/></svg>',
+ climate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M17 18a4 4 0 0 0 0-8 6 6 0 0 0-11.6 2A3.5 3.5 0 0 0 6 18z"/></svg>',
+ energy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+ water:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+ wellness:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>',
+ overview:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>',
+ ask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/><circle cx="12" cy="12" r=".3" fill="currentColor"/><path d="M9.2 9.5a2.8 2.8 0 0 1 5.4 1c0 1.8-2.6 2.2-2.6 4"/></svg>',
+ anom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 2 2 20h20z"/><path d="M12 9v5M12 17v.3"/></svg>',
+ fc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 17l5-6 4 3 5-7"/><path d="M17 7h4v4" stroke-dasharray="1 0"/></svg>',
+ rec:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.2 1 2h6c0-.8.3-1.3 1-2A6 6 0 0 0 12 3z"/></svg>',
+ warn:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22z" opacity=".18"/><path d="M12 8v6M12 17v.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+
+/* ============================ analytics (client) ============================ */
+function observed(vals){return vals.slice(0, D().forecast_start);}
+function metricObj(dom,met){return D().domains[dom].metrics[met];}
+function latest(vals){for(let i=vals.length-1;i>=0;i--) if(vals[i]!=null) return {v:vals[i],i};return{v:null,i:-1};}
+function mean(a){const x=a.filter(v=>v!=null);return x.length?x.reduce((s,v)=>s+v,0)/x.length:null;}
+function trendDelta(dom,met){ // latest vs value ~7 obs-days earlier
+  const o=observed(metricObj(dom,met).values); const L=latest(o); if(L.v==null)return null;
+  let j=L.i-7; while(j>0&&o[j]==null)j--; const prev=o[j];
+  if(prev==null||prev===0)return null; return {abs:L.v-prev, pct:(L.v-prev)/Math.abs(prev)*100};
+}
+/* semantic delta coloring: green = moving in the metric's good direction,
+   red = adverse move, neutral gray = contextual metric or no change */
+function deltaClass(sign,good){
+  if(!sign||!good)return "neu";
+  return ((good==="up"&&sign>0)||(good==="down"&&sign<0))?"pos":"neg";
+}
+function deltaHtml(del,good,label){
+  if(!del)return "";
+  const s=del.abs>0?1:del.abs<0?-1:0, ar=s>0?"▲":s<0?"▼":"■";
+  return `<span class="delta ${deltaClass(s,good)}">${ar} ${fmt(Math.abs(del.pct))}%</span>`+
+    (label?`<span style="color:var(--muted);font-size:11.5px">${label}</span>`:"");
+}
+const AQI_BANDS=[[0,50,"Good","good"],[51,100,"Moderate","warning"],[101,150,"Unhealthy (sensitive)","serious"],
+  [151,200,"Unhealthy","serious"],[201,300,"Very Unhealthy","critical"],[301,1e9,"Hazardous","critical"]];
+function aqiBand(v){for(const b of AQI_BANDS)if(v>=b[0]&&v<=b[1])return b;return AQI_BANDS[0];}
+
+/* health score: penalties from real thresholds */
+function healthScore(){
+  const d=D(); let score=100; const notes=[];
+  const aqi=latest(observed(d.domains.air.metrics.us_aqi.values)).v;
+  if(aqi!=null){const b=aqiBand(aqi); const pen={good:0,warning:8,serious:20,critical:34}[b[3]];
+    score-=pen; if(pen)notes.push(`air quality ${b[2].toLowerCase()} (AQI ${Math.round(aqi)})`);}
+  const feels=latest(observed(d.domains.wellness.metrics.feels_like.values)).v;
+  if(feels!=null){ if(feels>=40){score-=22;notes.push(`extreme heat (${Math.round(feels)}°C feels-like)`);}
+    else if(feels>=35){score-=10;notes.push(`high heat (${Math.round(feels)}°C)`);}}
+  const uv=latest(observed(d.domains.wellness.metrics.uv_index.values)).v;
+  if(uv!=null&&uv>=8){score-=6;notes.push(`very high UV (${Math.round(uv)})`);}
+  const crit=d.anomalies.filter(a=>a.index>=d.forecast_start-5&&(a.severity==="critical")).length;
+  score-=Math.min(crit*5,15); if(crit)notes.push(`${crit} critical anomaly(ies) this week`);
+  score=Math.max(4,Math.min(100,Math.round(score)));
+  let label,cls; if(score>=80){label="Good";cls="good";} else if(score>=60){label="Fair";cls="warning";}
+  else if(score>=40){label="Poor";cls="serious";} else {label="Critical";cls="critical";}
+  return {score,label,cls,notes};
+}
+
+/* client NL engine (mirrors backend heuristic, uses precomputed forecasts) */
+const KW={
+ us_aqi:["aqi","air quality index","air quality","air pollution"],pm2_5:["pm2.5","pm25","fine particulate","particulate"],
+ pm10:["pm10","coarse"],nitrogen_dioxide:["no2","nitrogen"],ozone:["ozone","o3"],
+ temp_mean:["mean temperature","average temperature","temperature","temp","hot","cold","weather"],
+ temp_max:["max temperature","hottest","high temp"],precipitation:["precipitation","rain","rainfall"],
+ wind_max:["wind"],solar_energy:["solar","radiation","renewable","sun energy"],sunshine:["sunshine","sunny"],
+ cooling_demand:["cooling","ac demand","air conditioning"],heating_demand:["heating"],
+ river_discharge:["river","discharge","flood","water level"],uv_index:["uv","ultraviolet"],
+ daylight:["daylight","day length"],feels_like:["feels like","feels-like","heat index","apparent","heat"],
+ humidity:["humidity","humid"]
+};
+function metricDomain(met){for(const dk of DOMAIN_ORDER)if(D().domains[dk].metrics[met])return dk;return null;}
+function askEngine(q){
+  q=q.toLowerCase().trim(); let best=null,bl=0;
+  for(const met in KW){ if(!metricDomain(met))continue;
+    for(const kw of KW[met]) if(q.includes(kw)&&kw.length>bl){best=met;bl=kw.length;} }
+  const city=D().location.name;
+  if(!best) return {answer:`I can answer questions about air quality, temperature, rainfall, solar energy, river/flood levels, UV and more for ${city}. Try “worst air-quality day”, “forecast temperature”, or “any flood anomalies?”.`,chart:null,engine:"heuristic"};
+  const dom=metricDomain(best), m=metricObj(dom,best), unit=m.unit, label=m.label;
+  const o=observed(m.values), dates=D().dates;
+  const pairs=[]; o.forEach((v,i)=>{if(v!=null)pairs.push([dates[i],v]);});
+  const mk=(hl,kind)=>({domain:dom,metric:best,highlight:hl||null,kind:kind||"line"});
+  const fkey=dom+"."+best, F=D().forecasts[fkey];
+  if(/forecast|predict|next week|will |expect|outlook|coming/.test(q)&&F){
+    const n=F.forecast[F.forecast.length-1];
+    return {answer:`Projected ${label} in ${city} is about ${fmt(n.value)} ${unit} in ~2 weeks (14-day trend is ${F.trend}, ${F.projected_change>=0?"+":""}${fmt(F.projected_change)} ${unit}). Likely range ${fmt(n.lower)}–${fmt(n.upper)} ${unit}.`,chart:mk(null,"forecast"),engine:"heuristic"};
+  }
+  if(/anomal|unusual|spike|abnormal|strange|weird/.test(q)){
+    const a=D().anomalies.filter(x=>x.metric===best)[0];
+    if(a)return {answer:`Yes — ${label} showed a ${a.severity} ${a.direction} on ${a.date}: ${fmt(a.value)} ${unit} (${a.z>=0?"+":""}${a.z}σ vs a baseline of ${fmt(a.baseline)}).`,chart:mk(a.date),engine:"heuristic"};
+    return {answer:`No significant anomalies detected in ${label} recently.`,chart:mk(),engine:"heuristic"};
+  }
+  if(/worst|highest|max|peak|most|dangerous/.test(q)){
+    const p=pairs.reduce((a,b)=>b[1]>a[1]?b:a);
+    let extra=""; if(best==="us_aqi"){const b=aqiBand(p[1]);extra=` — “${b[2]}”`;}
+    return {answer:`The highest ${label} was ${fmt(p[1])} ${unit} on ${p[0]}${extra}.`,chart:mk(p[0]),engine:"heuristic"};
+  }
+  if(/best|lowest|min|cleanest|least/.test(q)){
+    const p=pairs.reduce((a,b)=>b[1]<a[1]?b:a);
+    return {answer:`The lowest ${label} was ${fmt(p[1])} ${unit} on ${p[0]}.`,chart:mk(p[0]),engine:"heuristic"};
+  }
+  if(/average|mean|typical|usual/.test(q)){
+    const av=mean(pairs.map(p=>p[1]));
+    return {answer:`The average ${label} over the last ${pairs.length} days is ${fmt(av)} ${unit}.`,chart:mk(),engine:"heuristic"};
+  }
+  if(/trend|rising|falling|increasing|decreasing|getting|changed|improv/.test(q)){
+    return {answer:`${label} is trending ${F?F.trend:"flat"} over the observed period in ${city}.`,chart:mk(),engine:"heuristic"};
+  }
+  const cur=pairs[pairs.length-1], av=mean(pairs.map(p=>p[1])), delta=cur[1]-av;
+  let extra=""; if(best==="us_aqi"){const b=aqiBand(cur[1]);extra=` It is “${b[2]}”.`;}
+  return {answer:`Latest ${label} in ${city} is ${fmt(cur[1])} ${unit} (as of ${cur[0]}), ${delta>=0?"above":"below"} the ${pairs.length}-day average of ${fmt(av)} ${unit}.${extra}`,chart:mk(),engine:"heuristic"};
+}
+
+/* ============================ SVG charts ============================ */
+function sevColor(s){return cvar("--"+({warning:"warning",serious:"serious",critical:"critical"}[s]||"muted"));}
+function renderSpark(container,vals,colorVar){
+  container.__spark={vals,colorVar}; drawSpark(container);
+}
+function drawSpark(c){
+  const {vals,colorVar}=c.__spark; const w=c.clientWidth||200,h=c.clientHeight||34,pad=3;
+  const pts=vals.map((v,i)=>[i,v]).filter(p=>p[1]!=null); if(pts.length<2){c.innerHTML="";return;}
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const sx=i=>pad+(i-x0)/((x1-x0)||1)*(w-2*pad), sy=v=>h-pad-(v-y0)/((y1-y0)||1)*(h-2*pad);
+  const col=cvar(colorVar);
+  let d="",a=""; pts.forEach((p,k)=>{const X=sx(p[0]).toFixed(1),Y=sy(p[1]).toFixed(1);d+=(k?"L":"M")+X+" "+Y;});
+  a=d+`L${sx(x1).toFixed(1)} ${h-pad}L${sx(x0).toFixed(1)} ${h-pad}Z`;
+  const gid="sg"+Math.random().toString(36).slice(2,7);
+  c.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" width="${w}" height="${h}">
+   <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+   <stop offset="0" stop-color="${col}" stop-opacity=".26"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+   <path d="${a}" fill="url(#${gid})"/><path d="${d}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+   <circle cx="${sx(pts[pts.length-1][0]).toFixed(1)}" cy="${sy(pts[pts.length-1][1]).toFixed(1)}" r="2.6" fill="${col}"/></svg>`;
+}
+
+/* main line chart with forecast band, anomaly markers, hover crosshair */
+function renderLine(container,cfg){ container.__line=cfg; drawLine(container); }
+function drawLine(c){
+  const cfg=c.__line; const W=c.clientWidth||600, H=cfg.height||300;
+  const padL=46,padR=16,padT=14,padB=26; const iw=W-padL-padR, ih=H-padT-padB;
+  const col=cvar(cfg.colorVar||"--c-air");
+  // unified points: observed then forecast
+  let pts=cfg.points; const allV=[];
+  pts.forEach(p=>{if(p.v!=null)allV.push(p.v); if(p.lo!=null)allV.push(p.lo); if(p.hi!=null)allV.push(p.hi);});
+  if(allV.length<2){c.innerHTML='<div class="empty">Not enough data to plot.</div>';return;}
+  let ymin=Math.min(...allV),ymax=Math.max(...allV); if(ymin===ymax){ymax+=1;ymin-=1;}
+  const span=ymax-ymin; ymin-=span*0.08; ymax+=span*0.08; if(cfg.zeroBase&&ymin>0)ymin=0;
+  const n=pts.length;
+  const sx=i=>padL+(n<=1?0:i/(n-1)*iw), sy=v=>padT+ih-(v-ymin)/(ymax-ymin)*ih;
+  const grid=cvar("--chart-grid"),axis=cvar("--chart-axis"),muted=cvar("--muted");
+  // y ticks
+  const ticks=4; let gl="",yl="";
+  for(let t=0;t<=ticks;t++){const val=ymin+(ymax-ymin)*t/ticks;const Y=sy(val).toFixed(1);
+    gl+=`<line x1="${padL}" x2="${W-padR}" y1="${Y}" y2="${Y}" stroke="${grid}" stroke-width="1"/>`;
+    yl+=`<text x="${padL-8}" y="${(+Y+3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="${muted}">${fmt(val)}</text>`;}
+  // x labels
+  const fi=cfg.fcStart!=null?cfg.fcStart:n; let xl="";
+  const nlab=Math.min(5,n); for(let k=0;k<nlab;k++){const i=Math.round(k/(nlab-1)*(n-1));
+    const dt=pts[i].date.slice(5); xl+=`<text x="${sx(i).toFixed(1)}" y="${H-8}" text-anchor="${k===0?'start':k===nlab-1?'end':'middle'}" font-size="10.5" fill="${muted}">${dt}</text>`;}
+  // forecast band
+  let band=""; if(cfg.fcStart!=null){
+    let up="",dn=""; for(let i=cfg.fcStart-1;i<n;i++){const p=pts[i];const hi=p.hi!=null?p.hi:p.v,lo=p.lo!=null?p.lo:p.v;
+      up+=(up?"L":"M")+sx(i).toFixed(1)+" "+sy(hi).toFixed(1); dn=sx(i).toFixed(1)+" "+sy(lo).toFixed(1)+" "+dn;}
+    if(up)band=`<path d="${up}L${dn}Z" fill="${col}" fill-opacity=".12" stroke="none"/>`;
+  }
+  // observed & forecast lines
+  const gid="lg"+Math.random().toString(36).slice(2,7);
+  let obs="",farea=""; const oEnd=cfg.fcStart!=null?cfg.fcStart:n;
+  for(let i=0;i<oEnd;i++){if(pts[i].v==null)continue;obs+=(obs?"L":"M")+sx(i).toFixed(1)+" "+sy(pts[i].v).toFixed(1);}
+  // area under observed
+  let area=""; if(cfg.area&&obs){const first=obs.indexOf("M");
+    area=obs+`L${sx(oEnd-1).toFixed(1)} ${(padT+ih).toFixed(1)}L${sx(0).toFixed(1)} ${(padT+ih).toFixed(1)}Z`;}
+  let fc=""; if(cfg.fcStart!=null){for(let i=cfg.fcStart-1;i<n;i++){const p=pts[i];if(p.v==null)continue;fc+=(fc?"L":"M")+sx(i).toFixed(1)+" "+sy(p.v).toFixed(1);}}
+  // anomaly markers
+  let am=""; (cfg.anomalies||[]).forEach(a=>{const i=pts.findIndex(p=>p.date===a.date);if(i<0||pts[i].v==null)return;
+    const sc=sevColor(a.severity); am+=`<circle cx="${sx(i).toFixed(1)}" cy="${sy(pts[i].v).toFixed(1)}" r="4.4" fill="${sc}" stroke="var(--surface)" stroke-width="1.6"/>`;});
+  // highlight
+  let hl=""; if(cfg.highlight){const i=pts.findIndex(p=>p.date===cfg.highlight);if(i>=0&&pts[i].v!=null){
+    hl=`<line x1="${sx(i).toFixed(1)}" x2="${sx(i).toFixed(1)}" y1="${padT}" y2="${padT+ih}" stroke="${col}" stroke-width="1" stroke-dasharray="3 3" opacity=".6"/>
+        <circle cx="${sx(i).toFixed(1)}" cy="${sy(pts[i].v).toFixed(1)}" r="5.5" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;}}
+  const fcDivider=cfg.fcStart!=null&&cfg.fcStart<n?`<line x1="${sx(cfg.fcStart-1).toFixed(1)}" x2="${sx(cfg.fcStart-1).toFixed(1)}" y1="${padT}" y2="${padT+ih}" stroke="${axis}" stroke-width="1" stroke-dasharray="2 3"/>`:"";
+  c.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+   <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".22"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+   ${gl}${yl}${xl}${band}${fcDivider}
+   ${area?`<path d="${area}" fill="url(#${gid})"/>`:""}
+   <path d="${obs}" fill="none" stroke="${col}" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round"/>
+   ${fc?`<path d="${fc}" fill="none" stroke="${col}" stroke-width="2.1" stroke-dasharray="5 4" stroke-linecap="round" opacity=".85"/>`:""}
+   ${am}${hl}
+   <rect class="hit" x="${padL}" y="${padT}" width="${iw}" height="${ih}" fill="transparent"/>
+   <line class="cross" x1="0" x2="0" y1="${padT}" y2="${padT+ih}" stroke="${axis}" stroke-width="1" opacity="0"/>
+   <circle class="focus" r="4.5" fill="${col}" stroke="var(--surface)" stroke-width="2" opacity="0"/>
+  </svg>`;
+  // hover
+  const svg=c.querySelector("svg"), cross=c.querySelector(".cross"), focus=c.querySelector(".focus");
+  let tt=c.querySelector(".chart-tt"); if(!tt){tt=el("div","chart-tt");c.appendChild(tt);}
+  const hit=c.querySelector(".hit");
+  hit.addEventListener("mousemove",e=>{
+    const r=svg.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width*W;
+    let i=Math.round((px-padL)/(iw||1)*(n-1)); i=Math.max(0,Math.min(n-1,i));
+    while(i<n&&pts[i].v==null)i++; if(i>=n||pts[i].v==null)return;
+    const X=sx(i),Y=sy(pts[i].v);
+    cross.setAttribute("x1",X);cross.setAttribute("x2",X);cross.setAttribute("opacity",".5");
+    focus.setAttribute("cx",X);focus.setAttribute("cy",Y);focus.setAttribute("opacity","1");
+    const isF=cfg.fcStart!=null&&i>=cfg.fcStart;
+    tt.innerHTML=`<div class="d">${pts[i].date}${isF?" · forecast":""}</div><div class="r"><span class="sw" style="background:${col}"></span><span>${cfg.label}</span><span class="v tnum">${fmt(pts[i].v)} ${cfg.unit}</span></div>`+
+      (isF&&pts[i].lo!=null?`<div class="r" style="color:var(--muted);font-weight:500"><span class="sw" style="background:transparent"></span><span>range</span><span class="v tnum">${fmt(pts[i].lo)}–${fmt(pts[i].hi)}</span></div>`:"");
+    tt.style.opacity="1"; const left=Math.min(Math.max(X/W*r.width-tt.offsetWidth/2,4),r.width-tt.offsetWidth-4);
+    tt.style.left=left+"px"; tt.style.top=(Y/H*r.height-tt.offsetHeight-12)+"px";
+  });
+  hit.addEventListener("mouseleave",()=>{tt.style.opacity="0";cross.setAttribute("opacity","0");focus.setAttribute("opacity","0");});
+}
+
+/* build points array for a metric over a date range, optionally with forecast */
+function buildPoints(dom,met,rangeDays,withFc){
+  const m=metricObj(dom,met), dates=D().dates, fs=D().forecast_start;
+  let start=0; if(rangeDays&&rangeDays<fs)start=fs-rangeDays;
+  const pts=[]; for(let i=start;i<fs;i++)pts.push({date:dates[i],v:m.values[i]});
+  let fcStart=null;
+  if(withFc){const F=D().forecasts[dom+"."+met];
+    if(F){fcStart=pts.length; F.forecast.forEach(f=>pts.push({date:f.date,v:f.value,lo:f.lower,hi:f.upper}));}}
+  return {pts,fcStart};
+}
+
+/* ============================ views ============================ */
+const app=$("#app");
+function shell(){
+  app.innerHTML=`
+  <div class="shell" id="shell">
+    <div class="scrim" onclick="toggleNav(false)"></div>
+    <aside class="sidebar">
+      <div class="brand"><div class="mark">${ICONS_MARK}</div>
+        <div><b>Riverbend Signal</b><span>Decision Intelligence</span></div></div>
+      <div class="loc-picker" id="locPicker">
+        <button class="loc-btn" onclick="toggleLoc()" aria-haspopup="listbox">
+          <span class="flag" id="locFlag"></span>
+          <span class="lz"><b id="locName"></b><small id="locSub"></small></span>
+          <span class="chev">${CHEV}</span></button>
+        <div class="loc-menu" role="listbox" id="locMenu"></div>
+      </div>
+      <div id="nav"></div>
+      <div class="spacer"></div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn"></button>
+      <div class="side-foot">
+        Live data: <b>Open-Meteo</b> — air quality, weather, solar & GloFAS flood.<br>
+        Snapshot captured <span id="genTime"></span>. Real data, no synthetic values.
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="menu-btn" onclick="toggleNav(true)" aria-label="Menu">${BURGER}</button>
+        <div><h1 id="tbTitle"></h1><div class="sub" id="tbSub"></div></div>
+        <div class="asof"><div><span class="pulse"></span><b id="tbCity"></b></div><div id="tbAsof"></div></div>
+      </header>
+      <main id="viewRoot"></main>
+    </div>
+  </div>`;
+  buildNav(); syncLoc(); renderView();
+  $("#genTime").textContent=new Date(DB.generated_utc).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+  updateThemeBtn();
+}
+const ICONS_MARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-5 3 3 4-7 3 5 4-6"/></svg>';
+const CHEV='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>';
+const BURGER='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+
+const NAV=[
+  {v:"overview",label:"City Overview",ic:ICONS.overview},
+  {v:"ask",label:"Ask the Data",ic:ICONS.ask},
+  {sep:"Domains"},
+  ...DOMAIN_ORDER.map(d=>({v:"dom:"+d,dom:d})),
+  {sep:"Intelligence"},
+  {v:"anomalies",label:"Anomalies",ic:ICONS.anom,badge:true},
+  {v:"forecast",label:"Forecasts",ic:ICONS.fc},
+  {v:"recommend",label:"Recommendations",ic:ICONS.rec},
+];
+function buildNav(){
+  const nav=$("#nav"); nav.innerHTML="";
+  NAV.forEach(item=>{
+    if(item.sep){nav.appendChild(el("div","nav-label",item.sep));return;}
+    const b=el("button","nav-item");
+    if(item.dom){const dm=D().domains[item.dom];
+      b.innerHTML=`<span class="dot" style="background:var(${DOMAIN_COLOR[item.dom]})"></span><span>${dm.label}</span>`;
+      b.dataset.v="dom:"+item.dom;
+    }else{
+      b.innerHTML=`<span class="ic">${item.ic}</span><span>${item.label}</span>`+
+        (item.badge?`<span class="badge" id="anomBadge">0</span>`:"");
+      b.dataset.v=item.v;
+    }
+    b.onclick=()=>{go(b.dataset.v);toggleNav(false);};
+    nav.appendChild(b);
+  });
+  updateNavActive(); updateBadge();
+}
+function updateNavActive(){$$(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.v===state.view));}
+function updateBadge(){const n=D().anomalies.filter(a=>a.index>=D().forecast_start-7&&a.severity!=="warning").length;
+  const b=$("#anomBadge"); if(b){b.textContent=n;b.classList.toggle("zero",n===0);}}
+
+/* location */
+const QUICK_CITIES=["Delhi","Mumbai","Bengaluru","Kolkata","New York","London","Tokyo","Singapore","São Paulo","Nairobi","Sydney","Dubai"];
+function syncLoc(){const c=DB.cities.find(x=>x.key===state.city);
+  $("#locFlag").textContent=flag(c.country_code); $("#locName").textContent=c.name;
+  $("#locSub").textContent=c.country; const menu=$("#locMenu"); menu.innerHTML="";
+  if(LIVE){
+    const wrap=el("div");wrap.style.padding="4px";
+    wrap.innerHTML=`<input id="citySearch" placeholder="Search any city…" autocomplete="off"
+      style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:13px;margin-bottom:6px">
+      <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:4px 6px">Quick access</div>`;
+    menu.appendChild(wrap);
+    QUICK_CITIES.forEach(name=>{const b=el("button");b.innerHTML=`<span class="flag">📍</span><span>${name}</span>`;
+      b.onclick=()=>{toggleLoc(false);window.loadCity(name);};menu.appendChild(b);});
+    setTimeout(()=>{const i=$("#citySearch");if(i){i.focus();
+      i.addEventListener("keydown",e=>{if(e.key==="Enter"&&i.value.trim()){toggleLoc(false);window.loadCity(i.value.trim());}});}},30);
+    return;
+  }
+  DB.cities.forEach(x=>{const b=el("button");b.setAttribute("aria-selected",x.key===state.city);
+    b.innerHTML=`<span class="flag">${flag(x.country_code)}</span><span>${x.name}</span><span class="mini">${x.country}</span>`;
+    b.onclick=()=>{state.city=x.key;rememberCity(x.key);toggleLoc(false);buildNav();syncLoc();renderView();};menu.appendChild(b);});}
+window.toggleLoc=(f)=>{const p=$("#locPicker");p.classList.toggle("open",f===undefined?!p.classList.contains("open"):f);};
+document.addEventListener("click",e=>{const p=$("#locPicker");if(p&&!p.contains(e.target))p.classList.remove("open");});
+window.toggleNav=(f)=>{$("#shell").classList.toggle("nav-open",f);};
+
+/* theme */
+/* dark-first: default is dark unless the user explicitly chose light */
+function currentTheme(){return document.documentElement.getAttribute("data-theme")||"dark";}
+window.toggleTheme=()=>{const t=currentTheme()==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",t);try{localStorage.setItem("rs-theme",t);}catch(e){}};
+function updateThemeBtn(){const btn=$("#themeBtn");if(!btn)return;const dark=currentTheme()==="dark";
+  btn.innerHTML=dark
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg> Light mode'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/></svg> Dark mode';}
+
+window.go=(v)=>{state.view=v;
+  const run=()=>{if(app.querySelector("#viewRoot"))renderView();updateNavActive();};
+  if(document.startViewTransition){document.startViewTransition(run);}else run();
+  window.scrollTo({top:0,behavior:"smooth"});};
+
+function setTop(title,sub){const c=DB.cities.find(x=>x.key===state.city);
+  $("#tbTitle").textContent=title;$("#tbSub").textContent=sub||"";
+  $("#tbCity").textContent=c.country?`${c.name}, ${c.country}`:c.name;
+  $("#tbAsof").textContent="Data as of "+D().as_of;}
+
+function renderView(){
+  const root=$("#viewRoot"); if(!root)return; updateNavActive(); updateBadge();
+  const v=state.view;
+  if(v==="overview")viewOverview(root);
+  else if(v==="ask")viewAsk(root);
+  else if(v.startsWith("dom:"))viewDomain(root,v.slice(4));
+  else if(v==="anomalies")viewAnomalies(root);
+  else if(v==="forecast")viewForecast(root);
+  else if(v==="recommend")viewRecommend(root);
+  requestAnimationFrame(()=>{drawAll();applyReveal(root);});
+}
+
+/* ---------- Overview ---------- */
+function viewOverview(root){
+  setTop("City Overview","Cross-domain situational picture");
+  const hs=healthScore();
+  const circ=2*Math.PI*52, off=circ*(1-hs.score/100), gcol=cvar("--"+hs.cls);
+  root.innerHTML=`<div class="view">
+    <div class="grid" style="grid-template-columns:1fr;margin-bottom:16px">
+      <div class="card card-pad">
+        <div class="hscore">
+          <div class="gauge">
+            <svg viewBox="0 0 120 120" width="118" height="118">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="${gcol}" stroke-width="11" stroke-linecap="round"
+                stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div class="num"><b>${hs.score}</b><small>Health index</small></div>
+          </div>
+          <div class="hx">
+            <div class="pill ${hs.cls}" style="margin-bottom:8px">${dotSvg()} ${hs.label} conditions</div>
+            <h3>${D().location.name} community health index</h3>
+            <p>${hs.notes.length?"Weighed down by "+hs.notes.join(", ")+".":"All monitored domains are within normal ranges."} A composite of real air-quality, heat, UV and anomaly signals.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h3 style="margin:22px 2px 12px;font-size:14px;color:var(--text-2)">Domain signals</h3>
+    <div class="tiles" id="ovTiles"></div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:22px" id="ovLower"></div>
+  </div>`;
+  // tiles
+  const tiles=$("#ovTiles");
+  DOMAIN_ORDER.forEach(dk=>{tiles.appendChild(domainTile(dk));});
+  // lower: top alerts + top recs
+  const lower=$("#ovLower");
+  const alerts=D().anomalies.slice(0,5);
+  const ac=el("div","card"); ac.innerHTML=`<div class="card-h"><h3>Priority alerts</h3><div class="right"><button class="pill ghost" onclick="go('anomalies')">View all →</button></div></div><div class="feed" id="ovAlerts"></div>`;
+  lower.appendChild(ac);
+  const af=ac.querySelector("#ovAlerts");
+  if(!alerts.length)af.innerHTML='<div class="empty">No anomalies detected.</div>';
+  alerts.forEach(a=>af.appendChild(anomRow(a)));
+  const rc=el("div","card"); rc.innerHTML=`<div class="card-h"><h3>Recommended actions</h3><div class="right"><button class="pill ghost" onclick="go('recommend')">View all →</button></div></div><div id="ovRecs" style="padding:14px;display:flex;flex-direction:column;gap:12px"></div>`;
+  lower.appendChild(rc);
+  const rf=rc.querySelector("#ovRecs");
+  D().recommendations.slice(0,3).forEach(r=>rf.appendChild(recMini(r)));
+}
+function dotSvg(){return '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>';}
+function domainTile(dk){
+  const dm=D().domains[dk], keyMetric=Object.keys(dm.metrics)[0], m=dm.metrics[keyMetric];
+  const L=latest(observed(m.values)), del=trendDelta(dk,keyMetric);
+  const t=el("button","tile"); const cv=DOMAIN_COLOR[dk];
+  t.title=`${m.label} — source: ${m.source}`;
+  let status=""; if(dk==="air"&&L.v!=null){const b=aqiBand(L.v);status=`<span class="pill ${b[3]} status-pill">${b[2]}</span>`;}
+  const delH=deltaHtml(del,m.good_direction,"vs last week");
+  t.innerHTML=`<div class="rail" style="background:var(${cv})"></div>
+    <div class="th"><span class="cdot" style="background:var(${cv})"></span>${dm.label}</div>
+    <div class="val tnum">${fmt(L.v)}<span class="u">${m.unit}</span></div>
+    <div class="meta">${delH||`<span style="color:var(--muted)">${m.label}</span>`}${status}</div>
+    <div class="spark" data-dk="${dk}" data-mk="${keyMetric}"></div>`;
+  t.onclick=()=>go("dom:"+dk);
+  return t;
+}
+
+/* ---------- Domain view ---------- */
+function viewDomain(root,dk){
+  const dm=D().domains[dk]; setTop(dm.label,dm.subtitle);
+  const metrics=Object.keys(dm.metrics);
+  if(!state.domainMetric[dk])state.domainMetric[dk]=metrics[0];
+  if(!state.range[dk])state.range[dk]=90;
+  const sel=state.domainMetric[dk];
+  root.innerHTML=`<div class="view">
+    <div class="tiles" id="dTiles" style="margin-bottom:20px"></div>
+    <div class="card">
+      <div class="card-h"><h3 id="dChartTitle"></h3>
+        <div class="right">
+          <select class="selctl" id="dMetric">${metrics.map(mk=>`<option value="${mk}" ${mk===sel?"selected":""}>${dm.metrics[mk].label}</option>`).join("")}</select>
+          <div class="seg" id="dRange">${[30,90,0].map(r=>`<button data-r="${r}" class="${state.range[dk]===r?'on':''}">${r?r+'d':'All'}</button>`).join("")}</div>
+          <label class="toggle"><input type="checkbox" id="dFc" ${state.showFc[dk]?"checked":""}> Forecast</label>
+        </div></div>
+      <div class="card-pad">
+        <div class="chart-wrap" id="dChart" style="height:320px"></div>
+        <div class="legend" id="dLegend"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-h"><h3>Latest readings</h3><div class="sub">most recent observed value per metric</div></div>
+      <div class="card-pad"><div id="dBars" style="display:flex;flex-direction:column;gap:11px"></div></div>
+    </div>
+  </div>`;
+  const tiles=$("#dTiles");
+  metrics.forEach(mk=>tiles.appendChild(metricTile(dk,mk)));
+  $("#dMetric").onchange=e=>{state.domainMetric[dk]=e.target.value;drawDomainChart(dk);};
+  $$("#dRange button").forEach(b=>b.onclick=()=>{state.range[dk]=+b.dataset.r;
+    $$("#dRange button").forEach(x=>x.classList.toggle("on",x===b));drawDomainChart(dk);});
+  $("#dFc").onchange=e=>{state.showFc[dk]=e.target.checked;drawDomainChart(dk);};
+  drawDomainChart(dk);
+  // bars
+  const bars=$("#dBars"); const rows=metrics.map(mk=>{const L=latest(observed(dm.metrics[mk].values));return{mk,v:L.v,m:dm.metrics[mk]};}).filter(r=>r.v!=null);
+  const mx=Math.max(...rows.map(r=>Math.abs(r.v)))||1;
+  rows.forEach(r=>{const w=Math.max(3,Math.abs(r.v)/mx*100);
+    bars.appendChild(el("div",null,`<div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>${r.m.label}</span><b class="tnum">${fmt(r.v)} ${r.m.unit}</b></div><div style="height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden"><div style="height:100%;width:${w}%;background:var(${DOMAIN_COLOR[dk]});border-radius:5px"></div></div>`));});
+}
+function drawDomainChart(dk){
+  const met=state.domainMetric[dk], m=metricObj(dk,met), withFc=!!state.showFc[dk];
+  const {pts,fcStart}=buildPoints(dk,met,state.range[dk]||0,withFc);
+  const anoms=D().anomalies.filter(a=>a.metric===met);
+  $("#dChartTitle").textContent=m.label+" · "+(state.range[dk]?"last "+state.range[dk]+" days":"full period");
+  renderLine($("#dChart"),{points:pts,fcStart:fcStart,colorVar:DOMAIN_COLOR[dk],unit:m.unit,label:m.label,area:true,anomalies:anoms});
+  $("#dLegend").innerHTML=`<span class="li"><span class="sw" style="background:var(${DOMAIN_COLOR[dk]})"></span>Observed ${m.label}</span>`+
+    (withFc&&fcStart?`<span class="li"><span class="sw dash" style="color:var(${DOMAIN_COLOR[dk]})"></span>14-day forecast + band</span>`:"")+
+    (anoms.length?`<span class="li"><span class="sw" style="background:var(--critical);border-radius:50%;width:9px;height:9px"></span>Anomaly</span>`:"");
+  drawAll();
+}
+function metricTile(dk,mk){
+  const m=metricObj(dk,mk),L=latest(observed(m.values)),del=trendDelta(dk,mk);
+  const t=el("button","tile");
+  t.title=`${m.label} — source: ${m.source}`;
+  const delH=deltaHtml(del,m.good_direction,"vs last week");
+  t.innerHTML=`<div class="rail" style="background:var(${DOMAIN_COLOR[dk]})"></div>
+    <div class="th">${m.label}</div>
+    <div class="val tnum" style="font-size:26px">${fmt(L.v)}<span class="u">${m.unit}</span></div>
+    <div class="meta">${delH||`<span style="color:var(--muted);font-size:11.5px">stable series</span>`}</div>
+    <div class="spark" data-dk="${dk}" data-mk="${mk}"></div>`;
+  t.onclick=()=>{state.domainMetric[dk]=mk;drawDomainChart(dk);$("#dMetric").value=mk;window.scrollTo({top:120,behavior:"smooth"});};
+  return t;
+}
+
+/* ---------- Ask ---------- */
+const EXAMPLES=["What was the worst air-quality day?","Forecast the temperature for next 2 weeks",
+  "Any unusual river or flood levels?","Is the UV index dangerous right now?","Average PM2.5 this period","Should we worry about the heat?"];
+function viewAsk(root){
+  setTop("Ask the Data","Conversational analytics over live city data");
+  root.innerHTML=`<div class="view"><div class="ask-wrap">
+    <div class="banner">${warnSvg()}<div>This standalone demo answers from a <b>real data snapshot</b> using an on-device heuristic engine. The companion backend routes the same questions to <b>Google Gemini</b>, grounded on these exact figures.</div></div>
+    <div class="ask-scroll" id="askScroll"></div>
+    <div class="chips" id="askChips"></div>
+    <div class="ask-bar"><input id="askInput" placeholder="Ask about air quality, heat, rainfall, solar, flood risk…" autocomplete="off">
+      <button onclick="submitAsk()">${SEND} Ask</button></div>
+  </div></div>`;
+  const chips=$("#askChips"); EXAMPLES.forEach(x=>{const c=el("button","chip",x);c.onclick=()=>{doAsk(x);};chips.appendChild(c);});
+  const inp=$("#askInput"); inp.addEventListener("keydown",e=>{if(e.key==="Enter")submitAsk();});
+  const scroll=$("#askScroll");
+  if(!state.ask.length){scroll.appendChild(botBubble({answer:`Hi! I'm your decision-intelligence assistant for ${D().location.name}. Ask me anything about the city's air, climate, energy, water or wellness signals — or tap a suggestion below.`,engine:"assistant"}));}
+  else state.ask.forEach(m=>scroll.appendChild(m.role==="user"?userBubble(m.text):botBubble(m.res)));
+  scroll.scrollTop=scroll.scrollHeight; setTimeout(()=>inp.focus(),50);
+}
+window.submitAsk=()=>{const inp=$("#askInput");const q=inp.value.trim();if(!q)return;inp.value="";doAsk(q);};
+function doAsk(q){
+  const scroll=$("#askScroll");
+  state.ask.push({role:"user",text:q}); scroll.appendChild(userBubble(q));
+  const typing=el("div","msg bot");typing.innerHTML=`<div class="av">◆</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
+  scroll.appendChild(typing);scroll.scrollTop=scroll.scrollHeight;
+  const finish=res=>{typing.remove();const b=botBubble(res);scroll.appendChild(b);
+    state.ask.push({role:"bot",res});scroll.scrollTop=scroll.scrollHeight;drawAll();};
+  if(LIVE){
+    fetch(API+"/api/ask",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({question:q,city:DB.cities.find(x=>x.key===state.city).name})})
+      .then(r=>r.json()).then(res=>{ // ensure chart present if backend gave one
+        if(res.chart&&(!res.chart.domain||!D().domains[res.chart.domain]))res.chart=null; finish(res);})
+      .catch(e=>finish({answer:"Couldn't reach the analysis service. "+e.message,engine:"error"}));
+  } else {
+    setTimeout(()=>finish(askEngine(q)),420);
+  }
+}
+function userBubble(t){const m=el("div","msg user");m.innerHTML=`<div class="av">You</div><div class="bubble">${escapeHtml(t)}</div>`;return m;}
+function botBubble(res){
+  const m=el("div","msg bot");let chart="";
+  if(res.chart){const id="qc"+Math.random().toString(36).slice(2,7);
+    chart=`<div class="qchart"><div class="chart-wrap" id="${id}" style="height:180px"></div></div>`;}
+  m.innerHTML=`<div class="av">◆</div><div class="bubble">${escapeHtml(res.answer)}${chart}
+    <div class="eng"><span class="d"></span>${res.engine==="assistant"?"assistant":"Engine: "+res.engine}</div></div>`;
+  if(res.chart){requestAnimationFrame(()=>{const c=m.querySelector(".chart-wrap");if(!c)return;
+    const withFc=res.chart.kind==="forecast";const{pts,fcStart}=buildPoints(res.chart.domain,res.chart.metric,60,withFc);
+    const mm=metricObj(res.chart.domain,res.chart.metric);
+    const anoms=res.chart.highlight?[]:D().anomalies.filter(a=>a.metric===res.chart.metric).slice(0,3);
+    renderLine(c,{points:pts,fcStart,colorVar:DOMAIN_COLOR[res.chart.domain],unit:mm.unit,label:mm.label,area:true,anomalies:anoms,highlight:res.chart.highlight,height:180});});}
+  return m;
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- Anomalies ---------- */
+function viewAnomalies(root){
+  setTop("Anomaly Detection","Trailing-window z-score across every metric");
+  const all=D().anomalies;
+  root.innerHTML=`<div class="view">
+    <div class="view-intro"><p>Every metric is scored against its own 28-day trailing baseline. Points beyond ±2.5σ are flagged and ranked by recency and severity — surfacing wildfire smoke, heat spikes, flood surges and more, automatically.</p></div>
+    <div class="card">
+      <div class="card-h"><h3>Detected anomalies</h3><div class="right">
+        <select class="selctl" id="afDom"><option value="all">All domains</option>${DOMAIN_ORDER.map(d=>`<option value="${d}">${D().domains[d].label}</option>`).join("")}</select>
+        <div class="seg" id="afSev">${[["all","All"],["critical","Critical"],["serious","Serious"],["warning","Warning"]].map(s=>`<button data-s="${s[0]}" class="${state.anomFilter.sev===s[0]?'on':''}">${s[1]}</button>`).join("")}</div>
+      </div></div>
+      <div class="feed" id="anomFeed"></div>
+    </div></div>`;
+  $("#afDom").value=state.anomFilter.domain;
+  $("#afDom").onchange=e=>{state.anomFilter.domain=e.target.value;fillAnom();};
+  $$("#afSev button").forEach(b=>b.onclick=()=>{state.anomFilter.sev=b.dataset.s;
+    $$("#afSev button").forEach(x=>x.classList.toggle("on",x===b));fillAnom();});
+  fillAnom();
+}
+function fillAnom(){
+  const feed=$("#anomFeed");feed.innerHTML="";
+  let list=D().anomalies.filter(a=>(state.anomFilter.domain==="all"||a.domain===state.anomFilter.domain)&&
+    (state.anomFilter.sev==="all"||a.severity===state.anomFilter.sev));
+  if(!list.length){feed.innerHTML='<div class="empty">No anomalies match these filters.</div>';return;}
+  list.forEach(a=>feed.appendChild(anomRow(a,true)));
+}
+function anomRow(a,expandable){
+  const row=el("div","arow");const good=a.good_direction;
+  const bad=good&&((good==="down"&&a.direction==="spike")||(good==="up"&&a.direction==="drop"));
+  row.innerHTML=`<div class="sev" style="background:${sevColor(a.severity)}"></div>
+    <div class="icn" style="color:var(${DOMAIN_COLOR[a.domain]})">${ICONS[a.domain]}</div>
+    <div class="body"><b>${a.metric_label} ${a.direction}</b> <span class="pill ${a.severity}" style="margin-left:4px">${a.severity}</span>
+      <div class="m">${a.domain_label} • ${fmt(a.value)} ${a.unit} vs ${fmt(a.baseline)} baseline ${bad?"• adverse":""}</div></div>
+    <div class="rt"><div class="z" style="color:${sevColor(a.severity)}">${a.z>=0?"+":""}${a.z}σ</div><div class="dt">${a.date}</div></div>`;
+  if(expandable){row.onclick=()=>{ if(row.nextSibling&&row.nextSibling.classList&&row.nextSibling.classList.contains("adrill")){row.nextSibling.remove();return;}
+    const dr=el("div","adrill");dr.style.cssText="padding:6px 18px 18px;border-bottom:1px solid var(--border)";
+    const id="ad"+Math.random().toString(36).slice(2,7);dr.innerHTML=`<div class="chart-wrap" id="${id}" style="height:190px"></div>`;
+    row.after(dr);const{pts,fcStart}=buildPoints(a.domain,a.metric,60,false);const mm=metricObj(a.domain,a.metric);
+    renderLine($("#"+id),{points:pts,colorVar:DOMAIN_COLOR[a.domain],unit:mm.unit,label:mm.metric_label||mm.label,area:true,highlight:a.date,anomalies:[a],height:190});
+  };row.style.cursor="pointer";}
+  return row;
+}
+
+/* ---------- Forecast ---------- */
+function viewForecast(root){
+  setTop("Predictive Forecasts","14-day projection with confidence band");
+  const cur=state.fc;
+  const metricOpts=[];DOMAIN_ORDER.forEach(dk=>{const dm=D().domains[dk];Object.keys(dm.metrics).forEach(mk=>{
+    if(D().forecasts[dk+"."+mk])metricOpts.push({dk,mk,label:dm.label+" — "+dm.metrics[mk].label});});});
+  if(!D().forecasts[cur.domain+"."+cur.metric]&&metricOpts.length){cur.domain=metricOpts[0].dk;cur.metric=metricOpts[0].mk;}
+  root.innerHTML=`<div class="view">
+    <div class="card"><div class="card-h"><h3>Forecast</h3><div class="right">
+      <select class="selctl" id="fcSel">${metricOpts.map(o=>`<option value="${o.dk}.${o.mk}" ${o.dk===cur.domain&&o.mk===cur.metric?"selected":""}>${o.label}</option>`).join("")}</select>
+    </div></div>
+    <div class="card-pad">
+      <div id="fcStats" class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px"></div>
+      <div class="chart-wrap" id="fcChart" style="height:340px"></div>
+      <div class="legend" id="fcLegend"></div>
+    </div></div>
+    <div class="view-intro" style="margin-top:16px"><p style="font-size:12.5px">Method: robust Theil–Sen trend on the recent window + weekday seasonality, anchored to the latest level, damped over the horizon. The shaded band is an ~80% interval from residual dispersion. Same engine as the backend's <code>/api/forecast</code>.</p></div>
+  </div>`;
+  $("#fcSel").onchange=e=>{const[d,m]=e.target.value.split(".");state.fc={domain:d,metric:m};drawForecast();};
+  drawForecast();
+}
+function drawForecast(){
+  const{domain,metric}=state.fc;const m=metricObj(domain,metric);const F=D().forecasts[domain+"."+metric];
+  const{pts,fcStart}=buildPoints(domain,metric,45,true);
+  renderLine($("#fcChart"),{points:pts,fcStart,colorVar:DOMAIN_COLOR[domain],unit:m.unit,label:m.label,area:true});
+  const last=latest(observed(m.values)).v, end=F.forecast[F.forecast.length-1];
+  const stats=$("#fcStats");
+  const sgn=F.projected_change>0?1:F.projected_change<0?-1:0;
+  stats.innerHTML=`
+    ${statMini("Current",fmt(last)+" "+m.unit,"")}
+    ${statMini("Projected (14d)",fmt(end.value)+" "+m.unit,"")}
+    ${statMini("Trend",F.trend.charAt(0).toUpperCase()+F.trend.slice(1),"")}
+    ${statMini("Net change",`<span class="delta ${deltaClass(sgn,m.good_direction)}" style="font-size:14px">${F.projected_change>=0?"+":""}${fmt(F.projected_change)} ${m.unit}</span>`,"")}`;
+  $("#fcLegend").innerHTML=`<span class="li"><span class="sw" style="background:var(${DOMAIN_COLOR[domain]})"></span>Observed (last 45 days)</span>
+    <span class="li"><span class="sw dash" style="color:var(${DOMAIN_COLOR[domain]})"></span>Forecast</span>
+    <span class="li"><span class="sw" style="background:var(${DOMAIN_COLOR[domain]});opacity:.2;height:9px;border-radius:2px"></span>~80% confidence band</span>`;
+  drawAll();
+}
+function statMini(label,val,sub){return `<div class="tile" style="cursor:default"><div class="th">${label}</div><div class="val tnum" style="font-size:21px;margin-top:6px">${val}</div></div>`;}
+
+/* ---------- Recommendations ---------- */
+function viewRecommend(root){
+  setTop("Recommendations","Decision support for city stakeholders");
+  const recs=D().recommendations;
+  root.innerHTML=`<div class="view">
+    <div class="view-intro"><p>A rule engine maps live anomalies and current readings to concrete, stakeholder-tagged actions — the "so what, now what" layer that turns detection into decisions.</p></div>
+    <div class="recs" id="recGrid"></div></div>`;
+  const grid=$("#recGrid");
+  recs.forEach(r=>grid.appendChild(recCard(r)));
+}
+function recCard(r){
+  const c=el("div","rec "+r.priority);
+  c.innerHTML=`<div class="rh"><span class="pill ${r.priority}">${r.priority==="info"?"advisory":r.priority}</span>
+    <span class="pill ghost">${dotColor(r.domain)} ${D().domains[r.domain].label}</span></div>
+    <h4>${r.title}</h4><div class="act">${r.action}</div>
+    <div class="why">${r.rationale}</div>
+    <div class="tags">${r.stakeholders.map(s=>`<span class="tag">${s}</span>`).join("")}</div>
+    <div class="ev">evidence: ${r.evidence}</div>`;
+  return c;
+}
+function recMini(r){
+  const c=el("div",null);c.style.cssText="display:flex;gap:11px;align-items:flex-start";
+  c.innerHTML=`<span class="pill ${r.priority}" style="margin-top:2px">${r.priority==="info"?"advisory":r.priority}</span>
+    <div style="min-width:0"><b style="font-size:13.5px">${r.title}</b>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">${r.stakeholders.join(" · ")}</div></div>`;
+  return c;
+}
+function dotColor(dk){return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(${DOMAIN_COLOR[dk]})"></span>`;}
+function warnSvg(){return ICONS.warn;}
+const SEND='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>';
+
+/* ---------- redraw all charts (spark + line) ---------- */
+function drawAll(){
+  $$(".spark").forEach(s=>{const dk=s.dataset.dk,mk=s.dataset.mk;if(dk&&mk&&!s.__spark)
+    renderSpark(s,observed(metricObj(dk,mk).values),DOMAIN_COLOR[dk]);else if(s.__spark)drawSpark(s);});
+  $$(".chart-wrap").forEach(c=>{if(c.__line)drawLine(c);});
+}
+let rzT; window.addEventListener("resize",()=>{clearTimeout(rzT);rzT=setTimeout(drawAll,120);});
+
+/* ---------- scroll-reveal, count-up, scroll-reactive header ---------- */
+const REVEAL_SEL=".card,.tile,.rec,.arow,.view-intro,.banner,.msg,.hscore,.legend";
+let _revObs=null;
+const _reduceMotion=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
+function applyReveal(root){
+  const nodes=$$(REVEAL_SEL,root).filter(n=>!n.__rev);
+  if(_reduceMotion()||!("IntersectionObserver" in window)){
+    nodes.forEach(n=>{n.__rev=1;n.classList.add("in");countUpIn(n);});return;}
+  if(!_revObs)_revObs=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){
+    const t=e.target;setTimeout(()=>{t.classList.add("in");countUpIn(t);},t.__revDelay||0);_revObs.unobserve(t);}});},
+    {threshold:.08,rootMargin:"0px 0px -5% 0px"});
+  const vh=window.innerHeight||800; let i=0;
+  nodes.forEach(n=>{n.__rev=1;
+    // elements already in view show immediately (never hide visible content);
+    // only below-the-fold elements get the scroll-reveal treatment.
+    if(n.getBoundingClientRect().top < vh*0.92){ n.classList.add("in"); countUpIn(n); }
+    else { n.classList.add("reveal"); n.__revDelay=Math.min(i*55,340); i++; _revObs.observe(n); }
+  });
+  // safety net: never leave anything stuck hidden (e.g. during view transitions)
+  clearTimeout(applyReveal._t);
+  applyReveal._t=setTimeout(()=>{$$(".reveal:not(.in)",root).forEach(n=>{
+    n.classList.add("in");countUpIn(n);if(_revObs)_revObs.unobserve(n);});},900);
+}
+function countUpIn(node){
+  if(_reduceMotion())return;
+  $$(".val,.gauge .num b",node).forEach(elm=>{if(elm.__cu)return;elm.__cu=1;
+    const tn=elm.firstChild; if(!tn||tn.nodeType!==3)return;
+    const raw=tn.nodeValue; const m=raw.match(/-?[\d,]+(\.\d+)?/); if(!m)return;
+    const num=parseFloat(m[0].replace(/,/g,"")); if(!isFinite(num))return;
+    const dec=(m[1]||"").length?m[1].length-1:0; const pre=raw.slice(0,m.index); const suf=raw.slice(m.index+m[0].length);
+    const dur=850,t0=performance.now();
+    const fmtn=x=>x.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g,",");
+    const step=t=>{const p=Math.min((t-t0)/dur,1);const e=1-Math.pow(1-p,3);
+      tn.nodeValue=pre+fmtn(num*e)+suf; if(p<1)requestAnimationFrame(step); else tn.nodeValue=raw;};
+    tn.nodeValue=pre+fmtn(0)+suf; requestAnimationFrame(step);});
+}
+window.addEventListener("scroll",()=>{const tb=$(".topbar");if(tb)tb.classList.toggle("scrolled",window.scrollY>8);},{passive:true});
+
+/* ---------- location intelligence: geolocation → timezone → manual ---------- */
+function detectLocation(cb){ /* cb({lat,lon}) or cb(null); never hangs */
+  if(!("geolocation" in navigator)){cb(null);return;}
+  let done=false; const finish=v=>{if(!done){done=true;cb(v);}};
+  try{
+    navigator.geolocation.getCurrentPosition(
+      p=>finish({lat:p.coords.latitude,lon:p.coords.longitude}),
+      ()=>finish(null),{timeout:6000,maximumAge:600000});
+    setTimeout(()=>finish(null),7000);
+  }catch(e){finish(null);}
+}
+function tzGuessCity(){ /* IANA timezone → sensible default city */
+  const tz=((Intl.DateTimeFormat().resolvedOptions().timeZone)||"").toLowerCase();
+  if(/kolkata|calcutta/.test(tz))return "Delhi";
+  if(/karachi|dhaka|colombo|kathmandu|asia\//.test(tz))return "Delhi";
+  if(/australia|pacific\//.test(tz))return "Delhi";
+  if(/america\//.test(tz))return "New York";
+  if(/europe\/|africa\//.test(tz))return "London";
+  return null;
+}
+function nearestBundledCity(lat,lon){
+  const rad=x=>x*Math.PI/180; let best=null,bd=Infinity;
+  DB.cities.forEach(c=>{
+    const a=Math.sin(rad(c.lat-lat)/2)**2+Math.cos(rad(lat))*Math.cos(rad(c.lat))*Math.sin(rad(c.lon-lon)/2)**2;
+    const d=2*6371*Math.asin(Math.sqrt(a));
+    if(d<bd){bd=d;best=c;}});
+  return best?{city:best,km:bd}:null;
+}
+function showToast(msg,ms){
+  $$(".toast").forEach(t=>t.remove());
+  const t=el("div","toast",`<span style="color:var(--accent)">◈</span> ${msg}`);
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add("show"));
+  setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),350);},ms||5200);
+}
+function rememberCity(k){try{localStorage.setItem(LIVE?"rs-city-live":"rs-city",k);}catch(e){}}
+function recallCity(){try{return localStorage.getItem(LIVE?"rs-city-live":"rs-city");}catch(e){return null;}}
+
+/* live mode: fetch an enriched bundle for any location from the backend */
+function fetchBundle(query,displayName){
+  const safe=escapeHtml(String(displayName).slice(0,60));
+  app.innerHTML=`<div style="display:grid;place-items:center;height:100vh;gap:14px;color:var(--muted)">
+    <div class="mark" style="width:44px;height:44px;border-radius:12px;background:var(--grad);display:grid;place-items:center;color:var(--accent-ink);box-shadow:var(--glow)">${ICONS_MARK}</div>
+    <div>Loading live data for <b style="color:var(--text)">${safe}</b>…</div>
+    <div class="typing"><i></i><i></i><i></i></div></div>`;
+  fetch(API+"/api/bundle?"+query).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(bundle=>{DB.cities=bundle.cities;DB.data=bundle.data;DB.generated_utc=bundle.generated_utc;
+      state.city=bundle.cities[0].key;state.ask=[];shell();})
+    .catch(e=>{app.innerHTML=`<div class="empty" style="height:100vh;display:grid;place-items:center">
+      <div><h3>Couldn't load “${safe}”.</h3><p>${escapeHtml(e.message)}. Make sure the backend is running, then try another city.</p>
+      <button class="chip" onclick="location.reload()">Reload</button></div></div>`;});
+}
+window.loadCity=function(name){rememberCity(String(name).slice(0,60));
+  fetchBundle("city="+encodeURIComponent(name),name);};
+window.loadCoords=function(lat,lon){
+  fetchBundle(`lat=${(+lat).toFixed(4)}&lon=${(+lon).toFixed(4)}&label=${encodeURIComponent("Your location")}`,"your location");};
+
+/* init */
+(function(){
+  try{const t=localStorage.getItem("rs-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+  // react to theme changes from ANY source (our toggle, or the host page stamping
+  // data-theme): charts bake CSS-var colors at draw time, so re-render.
+  new MutationObserver(()=>{updateThemeBtn();const r=$("#viewRoot");if(r)renderView();})
+    .observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+  if(LIVE){
+    DB={cities:[],data:{},generated_utc:new Date().toISOString()};
+    const saved=recallCity();
+    if(saved){window.loadCity(saved);return;}
+    // auto-detect: precise geolocation → live data for the user's actual coordinates
+    detectLocation(pos=>{
+      if(pos){window.loadCoords(pos.lat,pos.lon);
+        setTimeout(()=>showToast("Showing live data for your location — use the picker to switch city"),1600);return;}
+      const guess=tzGuessCity();
+      window.loadCity(guess||"Delhi");
+      setTimeout(()=>{showToast(guess
+        ?`Location unavailable — guessed <b>${escapeHtml(guess)}</b> from your timezone. Switch anytime.`
+        :"Location unavailable — pick your city from the selector.",6500);
+        if(!guess)toggleLoc(true);},1600);
+    });
+  } else {
+    // standalone bundle: pick the best of the packaged cities for this user
+    const saved=recallCity();
+    if(saved&&DB.data[saved]){state.city=saved;shell();return;}
+    const guess=tzGuessCity();
+    if(guess&&DB.data[guess])state.city=guess;
+    shell();
+    detectLocation(pos=>{
+      if(!pos)return;
+      const near=nearestBundledCity(pos.lat,pos.lon);
+      if(near&&near.city.key!==state.city){
+        state.city=near.city.key;buildNav();syncLoc();renderView();}
+      if(near)showToast(`Auto-selected <b>${escapeHtml(near.city.name)}</b> — nearest packaged city (~${Math.round(near.km)} km). The live backend version supports any city on Earth.`,7000);
+    });
+    if(!navigator.geolocation&&guess)
+      setTimeout(()=>showToast(`Showing <b>${escapeHtml(guess)}</b> (guessed from your timezone). Switch anytime.`),1200);
+  }
+})();
+</script>
