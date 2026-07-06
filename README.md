@@ -1,0 +1,2 @@
+# Riverbend-Signal-AI-Powered-Community-Decision-Intelligence-Platform
+Riverbend Signal is an AI‑powered prototype platform that ingests real‑time environmental sensor data and provides community decision intelligence through natural‑language Q&amp;A, anomaly detection, forecasting, and actionable recommendations. It features a FastAPI backend, a responsive React frontend, Docker‑compose deployment, and optional on‑device
